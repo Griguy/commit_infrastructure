@@ -1,0 +1,12 @@
+.*.sw?
+.idea
+vendor
+.terraform
+.vscode
+*.tfstate
+*.tfstate.backup
+*.out
+.bundle
+.ruby-version
+.terragrunt-cache
+.terragrunt-stack
