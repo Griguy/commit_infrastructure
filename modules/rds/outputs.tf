@@ -29,8 +29,3 @@ output "rds_security_group_id" {
   description = "Security group attached to the RDS instance itself"
   value       = aws_security_group.rds.id
 }
-
-output "rds_client_security_group_id" {
-  description = "Attach this to anything that must be able to reach the database (e.g. EKS backend pods via a SecurityGroupPolicy). It carries no rules of its own -- membership alone is what the RDS security group's ingress rule trusts."
-  value       = aws_security_group.client.id
-}

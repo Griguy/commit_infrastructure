@@ -18,6 +18,11 @@ variable "subnet_ids" {
   type        = list(string)
 }
 
+variable "private_subnet_cidrs" {
+  description = "Private subnet CIDR blocks allowed to reach the database. EKS Auto Mode doesn't support Security Groups for Pods (no branch-ENI trunking), so pod-level scoping via security group membership isn't available -- this CIDR list is the tightest boundary actually enforceable at the network layer on this cluster, with the DB's own username/password as the second layer."
+  type        = list(string)
+}
+
 variable "engine" {
   description = "RDS engine (postgres or mysql)"
   type        = string

@@ -29,6 +29,7 @@ terraform {
 }
 
 inputs = {
-  vpc_id     = dependency.vpc.outputs.vpc_id
-  subnet_ids = dependency.vpc.outputs.private_subnet_ids
+  vpc_id               = dependency.vpc.outputs.vpc_id
+  subnet_ids           = dependency.vpc.outputs.private_subnet_ids
+  private_subnet_cidrs = dependency.vpc.outputs.private_subnet_cidrs
 }
