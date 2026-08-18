@@ -48,3 +48,24 @@ resource "aws_iam_role_policy_attachment" "this" {
   role       = aws_iam_role.this[each.value.role_key].name
   policy_arn = each.value.policy_arn
 }
+
+locals {
+  role_inline_policy_pairs = merge([
+    for role_key, role in var.roles : {
+      for policy_name, policy_document in role.inline_policies :
+      "${role_key}|${policy_name}" => {
+        role_key        = role_key
+        policy_name     = policy_name
+        policy_document = policy_document
+      }
+    }
+  ]...)
+}
+
+resource "aws_iam_role_policy" "this" {
+  for_each = local.role_inline_policy_pairs
+
+  name   = each.value.policy_name
+  role   = aws_iam_role.this[each.value.role_key].id
+  policy = each.value.policy_document
+}

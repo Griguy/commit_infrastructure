@@ -23,6 +23,7 @@ variable "roles" {
   type = map(object({
     namespace            = string
     service_account_name = string
-    policy_arns          = list(string)
+    policy_arns          = optional(list(string), [])
+    inline_policies      = optional(map(string), {})
   }))
 }

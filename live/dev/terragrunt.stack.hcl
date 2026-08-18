@@ -36,3 +36,33 @@ unit "irsa" {
   source = "${local.units_path}/eks/irsa"
   path   = "eks/irsa"
 }
+
+unit "db-secret" {
+  source = "${local.units_path}/eks/db-secret"
+  path   = "eks/db-secret"
+}
+
+unit "ecr" {
+  source = "${local.units_path}/ecr"
+  path   = "ecr"
+}
+
+unit "codeconnection" {
+  source = "${local.units_path}/codeconnection"
+  path   = "codeconnection"
+}
+
+unit "gitops-credential" {
+  source = "${local.units_path}/cicd/gitops-credential"
+  path   = "cicd/gitops-credential"
+}
+
+unit "cicd-backend" {
+  source = "${local.units_path}/cicd/backend"
+  path   = "cicd/backend"
+}
+
+unit "cicd-frontend" {
+  source = "${local.units_path}/cicd/frontend"
+  path   = "cicd/frontend"
+}
