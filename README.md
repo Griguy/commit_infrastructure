@@ -58,6 +58,43 @@ Five repos, each with one job:
 | **`cm_backend`** | Backend app source (Node.js), Dockerfile, `buildspec.yml`. Connects to RDS, exposes `GET /api/value` (a `SELECT`), `/healthz`, `/readyz`. |
 | **`cm_frontend`** | Frontend app source (Node.js), Dockerfile, `buildspec.yml`. Serves the page showing `Hello Lab-Commit <version> - DB Value: <n>`, polling its own `/api/value` (which proxies to the backend) every 5 seconds. |
 
+### Terragrunt unit structure
+
+`units/` mirrors `modules/` one level deeper where a unit only exists to extend another (e.g. `eks/argocd`, `eks/irsa` have no reason to exist without `eks`, so they nest under it rather than sitting flat alongside it, keeping that ownership visible in the directory tree instead of just in a `dependency` block; a nested unit reaches its parent via `config_path = ".."`, not a sibling-style relative path, since it's already inside the parent's own directory):
+
+```
+units
+├── cicd
+│   ├── backend
+│   │   └── terragrunt.hcl
+│   ├── frontend
+│   │   └── terragrunt.hcl
+│   └── gitops-credential
+│       └── terragrunt.hcl
+├── codeconnection
+│   └── terragrunt.hcl
+├── dns
+│   └── terragrunt.hcl
+├── ecr
+│   └── terragrunt.hcl
+├── eks
+│   ├── argocd
+│   │   └── terragrunt.hcl
+│   ├── db-secret
+│   │   └── terragrunt.hcl
+│   ├── irsa
+│   │   └── terragrunt.hcl
+│   └── terragrunt.hcl
+├── rds
+│   └── terragrunt.hcl
+├── vpc
+│   └── terragrunt.hcl
+└── windows
+    └── terragrunt.hcl
+```
+
+`live/dev/terragrunt.stack.hcl` is what actually turns these templates into the live `dev` stack (13 units total) — each `unit` block's `path` there controls both the unit's generated directory under `live/dev/.terragrunt-stack/` and its Terraform state's S3 key.
+
 ### AWS network and compute
 
 - **VPC**: 2 private subnets (where everything actually runs — EKS, RDS, the Windows host) + 2 public subnets (host only that AZ's NAT Gateway, nothing else deployed there). One Internet Gateway, one NAT Gateway per AZ for outbound-only internet access (image pulls, ArgoCD's repo-server reaching Git/Helm repos). No inbound path from the internet anywhere.
@@ -138,6 +175,5 @@ kubectl scale deployment k6-load-generator -n load-testing --replicas=0
 
 ## Further reading
 
-- `CLAUDE.md` (gitignored, local-only) — the authoritative Terraform/Terragrunt module/unit/live layering reference.
 - `COMMANDS.md` — every AWS CLI / kubectl / Terraform command pattern used while building and debugging this, organized by topic, including the exact SigV4-signing snippet for querying CloudWatch's PromQL API directly.
 - `INCIDENT-root-app-prune.md`, `INCIDENT-rds-pod-security-group.md`, `INCIDENT-grafana-cloudwatch-promql.md`, `INCIDENT-crd-ordering-and-serverside-apply.md` — detailed write-ups of real bugs hit while building this, root causes, and fixes. Worth reading before touching the areas they cover.
