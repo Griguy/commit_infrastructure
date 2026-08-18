@@ -21,3 +21,8 @@ unit "rds" {
   source = "${local.units_path}/rds"
   path   = "rds"
 }
+
+unit "dns" {
+  source = "${local.units_path}/dns"
+  path   = "dns"
+}
