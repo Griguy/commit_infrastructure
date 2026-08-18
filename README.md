@@ -115,6 +115,27 @@ units
 
 Per-service CodePipeline + CodeBuild, Terraform-managed (`modules/cicd/pipeline`, `units/cicd/backend`, `units/cicd/frontend`), triggered by a push to the `dev` branch of `commit_backend`/`commit_frontend` on GitHub via a shared CodeStar Connection.
 
+```mermaid
+flowchart LR
+    DEV["push to dev branch\ncommit_backend / commit_frontend"]
+    CSC["CodeStar Connection"]
+    CP["CodePipeline"]
+    CB["CodeBuild"]
+    ECR[("ECR\ncm-backend / cm-frontend")]
+    GITOPS[("cm_gitops\nenvs/dev/[service]/values.yaml")]
+    ARGO["Argo CD\n(selfHeal, polls Git)"]
+    CLUSTER["EKS\ncm-backend / cm-frontend Deployment"]
+
+    DEV -- webhook --> CSC
+    CSC -- triggers --> CP
+    CP -- Source stage --> CB
+    CB -- "build, tag with git SHA,\ndocker push" --> ECR
+    CB -- "clone, yq bump image.tag,\ncommit + push" --> GITOPS
+    GITOPS -- "git pull" --> ARGO
+    ARGO -- "sync new image.tag" --> CLUSTER
+    CLUSTER -- pulls new image --> ECR
+```
+
 **Flow, end to end:**
 1. Push to `dev` → CodeStar Connection webhook triggers the pipeline.
 2. CodeBuild builds the image, tags it with the git commit SHA — via `CODEBUILD_RESOLVED_SOURCE_VERSION`, **not** `git rev-parse`, since CodePipeline hands CodeBuild a zip artifact with no `.git` directory at all (this broke the first real pipeline run).
