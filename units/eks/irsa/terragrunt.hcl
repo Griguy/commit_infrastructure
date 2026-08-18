@@ -9,11 +9,11 @@ include "env" {
 }
 
 include "inputs" {
-  path = find_in_parent_folders("unit_configs/argocd/config.hcl")
+  path = find_in_parent_folders("unit_configs/eks/irsa/config.hcl")
 }
 
 dependency "eks" {
-  config_path = "../eks"
+  config_path = ".."
 }
 
 locals {
@@ -25,11 +25,10 @@ locals {
 }
 
 terraform {
-  source = "${local.modules_source}/argocd${local.ref_part}"
+  source = "${local.modules_source}/eks/irsa${local.ref_part}"
 }
 
 inputs = {
-  cluster_name                       = dependency.eks.outputs.cluster_name
-  cluster_endpoint                   = dependency.eks.outputs.cluster_endpoint
-  cluster_certificate_authority_data = dependency.eks.outputs.cluster_certificate_authority_data
+  oidc_provider_arn = dependency.eks.outputs.oidc_provider_arn
+  oidc_provider_url = dependency.eks.outputs.oidc_provider_url
 }

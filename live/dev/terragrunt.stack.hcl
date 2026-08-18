@@ -28,11 +28,11 @@ unit "dns" {
 }
 
 unit "argocd" {
-  source = "${local.units_path}/argocd"
-  path   = "argocd"
+  source = "${local.units_path}/eks/argocd"
+  path   = "eks/argocd"
 }
 
-unit "observability-irsa" {
-  source = "${local.units_path}/observability-irsa"
-  path   = "observability-irsa"
+unit "irsa" {
+  source = "${local.units_path}/eks/irsa"
+  path   = "eks/irsa"
 }
