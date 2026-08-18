@@ -10,3 +10,6 @@ vendor
 .ruby-version
 .terragrunt-cache
 .terragrunt-stack
+
+# Kept local-only by request -- never commit this.
+CLAUDE.md
