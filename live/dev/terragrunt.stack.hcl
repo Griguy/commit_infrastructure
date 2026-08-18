@@ -31,3 +31,8 @@ unit "argocd" {
   source = "${local.units_path}/argocd"
   path   = "argocd"
 }
+
+unit "observability-irsa" {
+  source = "${local.units_path}/observability-irsa"
+  path   = "observability-irsa"
+}

@@ -116,3 +116,20 @@ resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSNetworkingPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSNetworkingPolicy"
   role       = aws_iam_role.cluster.name
 }
+
+# Registers the cluster's own OIDC issuer as an IAM identity provider, which
+# is what lets a Kubernetes ServiceAccount assume an IAM role directly
+# (IRSA) instead of every pod sharing the node's IAM role. The thumbprint
+# is the issuer's TLS chain fingerprint, not a secret -- IAM uses it only
+# to validate the issuer's cert chain, the trust itself comes from the
+# `Federated` principal + audience/subject conditions on each role.
+data "tls_certificate" "eks_oidc" {
+  url = aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+}
+
+resource "aws_iam_openid_connect_provider" "this" {
+  url = aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.eks_oidc.certificates[0].sha1_fingerprint]
+}
