@@ -135,6 +135,28 @@ Per-service CodePipeline + CodeBuild, Terraform-managed (`modules/cicd/pipeline`
 
 Both apps are instrumented with OpenTelemetry (`node --require ./src/otel.js ...`), auto-instrumenting HTTP/Express (and `pg` for the backend), pushing OTLP to a single in-cluster otel-collector gateway Deployment.
 
+```mermaid
+flowchart LR
+    FE["cm-frontend"]
+    BE["cm-backend"]
+    OTEL["otel-collector"]
+    CW[("CloudWatch\nOTLP metrics + logs")]
+    PROM[("in-cluster Prometheus\nkube-prometheus-stack")]
+    CWDASH["CloudWatch Dashboard\ncommit-lab-cm-app-metrics"]
+    GRAFANA["Grafana dashboard\ncm-backend / cm-frontend"]
+
+    FE -- OTLP --> OTEL
+    BE -- OTLP --> OTEL
+    OTEL -- "otlphttp exporter\n(SigV4, service=monitoring)" --> CW
+    OTEL -- "local prometheus exporter\n(scraped via ServiceMonitor)" --> PROM
+    PROM -- "/federate\ncontainer CPU/mem, replica count" --> OTEL
+
+    CW --> CWDASH
+    PROM --> GRAFANA
+```
+
+The loop back from Prometheus into the collector (bottom) is deliberate, not a typo: neither app emits container/pod-level metrics itself, so the only way those numbers reach CloudWatch at all is federating them out of the cluster's own Prometheus and re-exporting them through the same collector pipeline that already talks to CloudWatch.
+
 **From there, the collector fans out to three places:**
 
 1. **CloudWatch (native OTLP ingestion)** — `otlphttp/metrics` and `otlphttp/logs` exporters, SigV4-signed. The service name in the SigV4 credential scope has to be `"monitoring"` for metrics (not the default) — CloudWatch's OTLP metrics endpoint is a genuinely new feature (GA mid-2026) with its own quirks -- the `otlphttp` exporter's `endpoint` field is a base URL it appends `/v1/metrics` to itself, so setting it to the full path (an easy first mistake) silently doubles the path and 404s every export; use `metrics_endpoint` instead, which is used as-is. Logs land in one log group (`/commit-lab/dev/otel`), `service.name` on each record distinguishes frontend from backend.
