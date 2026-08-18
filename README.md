@@ -27,8 +27,6 @@ aws ssm start-session \
   --parameters '{"portNumber":["3389"],"localPortNumber":["13389"]}'
 ```
 
-**RDP to it**: connect your RDP client to `localhost:13389`, log in as `Administrator` with the password from above.
-
 **Trust the self-signed certificate, once, inside that Windows session** (otherwise every HTTPS page load shows a cert warning):
 
 1. Fetch the cert PEM: `aws acm get-certificate --certificate-arn arn:aws:acm:us-east-2:276699358299:certificate/0572f4f6-d3c0-4004-9eb7-1133e5bf6d39 --region us-east-2 --query Certificate --output text`
