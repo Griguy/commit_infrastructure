@@ -11,3 +11,13 @@ unit "eks" {
   source = "${local.units_path}/eks"
   path   = "eks"
 }
+
+unit "windows" {
+  source = "${local.units_path}/windows"
+  path   = "windows"
+}
+
+unit "rds" {
+  source = "${local.units_path}/rds"
+  path   = "rds"
+}

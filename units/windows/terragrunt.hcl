@@ -9,7 +9,7 @@ include "env" {
 }
 
 include "inputs" {
-  path = find_in_parent_folders("unit_configs/eks/config.hcl")
+  path = find_in_parent_folders("unit_configs/windows/config.hcl")
 }
 
 dependency "vpc" {
@@ -25,7 +25,7 @@ locals {
 }
 
 terraform {
-  source = "${local.modules_source}/eks${local.ref_part}"
+  source = "${local.modules_source}/windows${local.ref_part}"
 }
 
 inputs = {
