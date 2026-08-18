@@ -26,3 +26,8 @@ unit "dns" {
   source = "${local.units_path}/dns"
   path   = "dns"
 }
+
+unit "argocd" {
+  source = "${local.units_path}/argocd"
+  path   = "argocd"
+}
