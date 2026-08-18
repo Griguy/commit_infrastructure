@@ -1,11 +1,9 @@
-# alb_dns_name / alb_zone_id are left unset until the AWS Load Balancer
-# Controller has provisioned the internal ALB from the frontend Ingress.
-# Once you have those (e.g. `kubectl get ingress` / describe the ALB),
-# add them here and re-apply to create the alias A record:
-#
-# inputs = {
-#   alb_dns_name = "internal-xxxx.us-east-2.elb.amazonaws.com"
-#   alb_zone_id  = "ZLMOA37VPKANP"
-# }
-
-inputs = {}
+# Set once the AWS Load Balancer Controller provisioned the internal ALB
+# from the frontend chart's Ingress (`kubectl get ingress -n frontend`,
+# `aws elbv2 describe-load-balancers` for the hosted zone ID). If the
+# frontend Ingress is ever deleted and recreated, the controller allocates a
+# brand new ALB with a new DNS name -- update these and re-apply.
+inputs = {
+  alb_dns_name = "internal-k8s-frontend-cmfronte-b27f3aee6b-1886293586.us-east-2.elb.amazonaws.com"
+  alb_zone_id  = "Z3AADJGX6KTTL2"
+}
