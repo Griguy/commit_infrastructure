@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 resource "aws_eks_cluster" "cluster" {
   name = "${var.project_name}-${var.environment}"
 
@@ -45,6 +47,30 @@ resource "aws_eks_cluster" "cluster" {
     aws_iam_role_policy_attachment.cluster_AmazonEKSLoadBalancingPolicy,
     aws_iam_role_policy_attachment.cluster_AmazonEKSNetworkingPolicy,
   ]
+}
+
+# Explicit access entry for whoever's IAM identity runs Terraform, rather
+# than relying on aws_eks_cluster's access_config.bootstrap_cluster_creator_admin_permissions
+# -- that flag only takes effect at cluster creation (changing it forces a
+# full cluster replacement) and its provider default has drifted across
+# versions. Without one or the other, the cluster comes up fine but every
+# kubernetes/helm-provider resource downstream (db-secret, argocd) fails
+# with "Unauthorized"/"cluster unreachable": a valid IAM token with nothing
+# mapping it to Kubernetes RBAC. This form is a plain resource, so it also
+# self-heals if the access entry is ever removed out of band.
+resource "aws_eks_access_entry" "creator" {
+  cluster_name  = aws_eks_cluster.cluster.name
+  principal_arn = data.aws_caller_identity.current.arn
+}
+
+resource "aws_eks_access_policy_association" "creator_admin" {
+  cluster_name  = aws_eks_cluster.cluster.name
+  principal_arn = data.aws_caller_identity.current.arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
 }
 
 resource "aws_iam_role" "node" {

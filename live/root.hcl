@@ -1,6 +1,12 @@
 locals {
-  # Currently, region for all resources altogether
-  region = "us-east-2"
+  # Region every actual resource gets provisioned into.
+  region = "eu-central-1"
+
+  # Region the Terraform state bucket itself lives in -- independent of
+  # `region` above. Moving where resources get provisioned (e.g. to a
+  # different region for the whole stack) doesn't mean the state bucket
+  # moves with them; it was created once, out of band, and stays put.
+  state_bucket_region = "us-east-2"
 
   # Unit dependency relative paths are prediclable
   dependency_paths = {
@@ -47,7 +53,7 @@ remote_state {
   config = {
     bucket       = "commit-lab-task-terraform-state"
     key          = "${path_relative_to_include()}/terraform.tfstate"
-    region       = local.region
+    region       = local.state_bucket_region
     encrypt      = true
     use_lockfile = true
   }

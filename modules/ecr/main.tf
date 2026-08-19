@@ -7,6 +7,12 @@ resource "aws_ecr_repository" "this" {
 
   name                 = each.value
   image_tag_mutability = "IMMUTABLE"
+  # Without this, `terraform destroy` refuses to remove a repository that
+  # still holds images (RepositoryNotEmptyException) -- hit exactly that
+  # doing a full environment teardown/recreate, since CI had already pushed
+  # real images by then. Lab environment, not a registry anything else
+  # depends on, so losing the images on destroy is the expected trade-off.
+  force_delete         = true
 
   image_scanning_configuration {
     scan_on_push = true

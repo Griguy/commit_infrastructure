@@ -10,11 +10,21 @@ locals {
 # would need prefix-scoped IAM conditions to keep one pipeline's role from
 # reading another's artifacts -- not worth it for two services.
 resource "aws_s3_bucket" "artifacts" {
-  bucket        = "${local.name_prefix}-pipeline-artifacts-${data.aws_caller_identity.current.account_id}"
+  # Region in the name, not just account ID: S3's bucket namespace doesn't
+  # free up a deleted name immediately (AWS holds it briefly, "OperationAborted:
+  # A conflicting conditional operation is currently in progress against this
+  # resource"), so recreating the *same* bucket name shortly after a `destroy`
+  # -- e.g. moving this whole stack to a different region and back -- can hang
+  # retrying for a long time. Scoping the name by region sidesteps that rather
+  # than waiting out AWS's own propagation delay.
+  # "artifacts", not "pipeline-artifacts" -- every extra character here
+  # counts against S3's 63-char bucket name cap, and name_prefix + account
+  # ID + region already eats most of the budget.
+  bucket        = "${local.name_prefix}-artifacts-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}"
   force_destroy = true
 
   tags = {
-    Name = "${local.name_prefix}-pipeline-artifacts"
+    Name = "${local.name_prefix}-artifacts"
   }
 }
 

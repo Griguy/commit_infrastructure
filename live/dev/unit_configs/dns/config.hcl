@@ -5,7 +5,9 @@
 # *new* ALB and drop the old one -- its DNS name changes every time that
 # happens, not just on first creation. Update these and re-apply whenever
 # it does.
-inputs = {
-  alb_dns_name = "internal-k8s-commitlabdev-00c45bff13-888213938.us-east-2.elb.amazonaws.com"
-  alb_zone_id  = "Z3AADJGX6KTTL2"
-}
+#
+# Empty until the ALB exists (left unset deliberately after the
+# us-east-2 -> eu-central-1 region migration -- the old values pointed at
+# an ALB that no longer exists, in a hosted zone ID that belongs to the
+# wrong region's ELB service anyway).
+inputs = {}
