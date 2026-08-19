@@ -1,3 +1,15 @@
+# IMPORTANT NOTE - MOVING TO EU-CENTRAL-1 (FRANKFURT)
+
+**UPD:I'm transitioning right now!**. Started 17:22 CET. Will remove this whole section, once done.
+
+Only recently have I discovered, that I was supposed to build my setup in eu-central-1 (Frankfurt).
+
+If you read this message, this means that today evening (after 6 pm CET) I'm going to destroy everyhing, and then bring it up again in eu-central-1 from the same configuration which you can find in my repositories. It will take me about 1-2 hours.
+
+I haven't started yet, and I will change this message again, stating that I'm right in the process of transitioning, once I have started. I will remove this message, once I'm done.
+
+Untill then, eu-east-2 hosts my setup.
+
 # cm_infrastructure
 
 Terraform/Terragrunt IaC for a private AWS lab environment: VPC, EKS (Auto Mode), RDS Postgres, a Windows SSM-only management host, Route53/ACM, and the AWS side of a GitOps-deployed application with autoscaling and telemetry. This repo provisions the AWS infrastructure; the application, GitOps, and Helm-chart layers live in four sibling repos described in [System architecture](#system-architecture) below.
